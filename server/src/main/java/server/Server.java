@@ -41,7 +41,7 @@ public class Server {
                     break;
                 }
                 else {
-                    System.out.println("Client " + str);
+                    System.out.println("Client: " + str);
                 }
             }
         } catch (IOException e) {
