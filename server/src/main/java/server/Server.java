@@ -26,7 +26,6 @@ public class Server {
                 System.out.println("Client connected " + socket.getRemoteSocketAddress());
                 new ClientHandler(this, socket);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
@@ -42,9 +41,27 @@ public class Server {
             }
         }
     }
-    public void clientToEveryOne(String msg) {
+    public void clientToEveryOne(ClientHandler sender, String msg) {
+        String message = String.format("%s: %s", sender.getNickname(), msg);
         for (ClientHandler client : clients) {
-            client.sendMsg(msg);
+            client.sendMsg(message);
+        }
+        System.out.println(message);
+    }
+    public void clientToClient(ClientHandler sender, String receiver, String msg) {
+        String message = String.format("%s to %s: %s", sender.getNickname(), receiver, msg);
+        for (ClientHandler client : clients) {
+            if (client.getNickname().equals(receiver)) {
+                client.sendMsg(message);
+                sender.sendMsg(message);
+                if (client.getNickname().equals(sender)) {
+                    sender.sendMsg("You can't send a message to yourself");
+                }
+                return;
+            }
+            else {
+                sender.sendMsg("This user does not exist");
+            }
         }
     }
     public void sub(ClientHandler clientHandler) {

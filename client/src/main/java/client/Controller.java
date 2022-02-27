@@ -50,6 +50,7 @@ public class Controller implements Initializable{
         if (!isAuth) {
             nickname = "";
         }
+        chatField.clear();
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -77,7 +78,7 @@ public class Controller implements Initializable{
                             }
                         }
                         else {
-                            chatField.appendText("Client: " + str + "\n");
+                            chatField.appendText(str + "\n");
                         }
                     }
                     while (isAuth) {
@@ -85,11 +86,12 @@ public class Controller implements Initializable{
                         if (str.equals("/close")) {
                             break;
                         }
-                        chatField.appendText("Client: " + str + "\n");
+                        chatField.appendText(str + "\n");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }finally {
+                    setAuth(false);
                     try {
                         socket.close();
                     } catch (IOException e) {
@@ -117,6 +119,7 @@ public class Controller implements Initializable{
             connect();
         }
         String doMsg = String.format("/auth %s %s", loginField.getText().trim(), passField.getText().trim());
+        passField.clear();
         try {
             out.writeUTF(doMsg);
         } catch (IOException e) {

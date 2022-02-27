@@ -50,12 +50,23 @@ public class ClientHandler {
 
                     while (isAuth) {
                         String str = in.readUTF();
-                        if (str.equals("/close")) {
-                            System.out.println("Client disconnected");
-                            sendMsg("/close");
-                            break;
+                        if (str.startsWith("/")){
+                            if (str.equals("/close")) {
+                                System.out.println("Client disconnected" + socket.getRemoteSocketAddress());
+                                sendMsg("/close");
+                                break;
+                            }
+                            if (str.startsWith("/w")) {
+                                String[] privateMesg = str.split(" ", 3);
+                                if (privateMesg.length < 3 ) {
+                                    continue;
+                                }
+                                server.clientToClient(this, privateMesg[1], privateMesg[2]);
+                            }
                         }
-                        server.clientToEveryOne(str);
+                        else {
+                            server.clientToEveryOne(this,str);
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -79,6 +90,11 @@ public class ClientHandler {
             e.printStackTrace();
         }
     }
+
+    public String getNickname() {
+        return nickname;
+    }
+
     public void sendMsg(String msg) {
         try {
             out.writeUTF(msg);
