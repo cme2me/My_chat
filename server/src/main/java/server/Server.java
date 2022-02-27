@@ -12,7 +12,9 @@ public class Server {
     private ServerSocket serverSocket;
 
     private List<ClientHandler> clients;
+    private Authentication authentication;
     public Server() {
+        authentication = new Auth();
         clients = new CopyOnWriteArrayList<>();
         //Socket socket = null;
         try {
@@ -21,8 +23,8 @@ public class Server {
 
             while (true) {
                 socket = serverSocket.accept();
-                System.out.println("Client connected ");
-                clients.add(new ClientHandler(this, socket));
+                System.out.println("Client connected " + socket.getRemoteSocketAddress());
+                new ClientHandler(this, socket);
             }
 
         } catch (IOException e) {
@@ -39,5 +41,20 @@ public class Server {
                 e.printStackTrace();
             }
         }
+    }
+    public void clientToEveryOne(String msg) {
+        for (ClientHandler client : clients) {
+            client.sendMsg(msg);
+        }
+    }
+    public void sub(ClientHandler clientHandler) {
+        clients.add(clientHandler);
+    }
+    public void unsub(ClientHandler clientHandler) {
+        clients.remove(clientHandler);
+    }
+
+    public Authentication getAuthentication() {
+        return authentication;
     }
 }
