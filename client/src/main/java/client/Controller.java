@@ -12,9 +12,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ResourceBundle;
-import java.util.Scanner;
 
 public class Controller implements Initializable{
 
@@ -27,15 +25,15 @@ public class Controller implements Initializable{
     public void initialize(URL location, ResourceBundle resources) {
         try {
             Socket socket = new Socket(SERV_ADRESS, PORT);
-            System.out.println("Client connected " + socket.getRemoteSocketAddress());
+            System.out.println("Client connected ");
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 
-            Thread threadRead = new Thread(()-> {
+            new Thread(()-> {
                 try {
                     while (true) {
                         String str = in.readUTF();
-                        chatField.appendText("Server: " + str + "\n");
+                        chatField.appendText(str + "\n");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -46,9 +44,7 @@ public class Controller implements Initializable{
                         e.printStackTrace();
                     }
                 }
-            });
-            threadRead.setDaemon(true);
-            threadRead.start();
+            }).start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -63,8 +59,12 @@ public class Controller implements Initializable{
 
     @FXML
     public void sendMsg(ActionEvent actionEvent) {
-        chatField.appendText(messageField.getText()+"\n");
-        messageField.requestFocus();
-        messageField.clear();
+        try {
+            out.writeUTF(messageField.getText());
+            messageField.requestFocus();
+            messageField.clear();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
