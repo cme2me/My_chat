@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 public class ClientHandler {
     private Server server;
@@ -21,6 +23,7 @@ public class ClientHandler {
             out = new DataOutputStream(socket.getOutputStream());
             Thread working = new Thread(() -> {
                 try {
+                    socket.setSoTimeout(3000);
                     while (true) {
                         String str = in.readUTF();
                         if (str.startsWith("/")) {
@@ -40,17 +43,17 @@ public class ClientHandler {
                                     isAuth = true;
                                     server.sub(this);
                                     break;
-                                }
-                                else {
+                                } else {
                                     sendMsg("Login or password are incorrect");
                                 }
                             }
                         }
                     }
+                    socket.setSoTimeout(0);
 
                     while (isAuth) {
                         String str = in.readUTF();
-                        if (str.startsWith("/")){
+                        if (str.startsWith("/")) {
                             if (str.equals("/close")) {
                                 System.out.println("Client disconnected" + socket.getRemoteSocketAddress());
                                 sendMsg("/close");
@@ -58,19 +61,20 @@ public class ClientHandler {
                             }
                             if (str.startsWith("/w")) {
                                 String[] privateMesg = str.split(" ", 3);
-                                if (privateMesg.length < 3 ) {
+                                if (privateMesg.length < 3) {
                                     continue;
                                 }
                                 server.clientToClient(this, privateMesg[1], privateMesg[2]);
                             }
-                        }
-                        else {
-                            server.clientToEveryOne(this,str);
+                        } else {
+                            server.clientToEveryOne(this, str);
                         }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                }finally {
+                    sendMsg("/close");
+
+                } finally {
                     server.unsub(this);
                     try {
                         out.writeUTF("Client disconnected");

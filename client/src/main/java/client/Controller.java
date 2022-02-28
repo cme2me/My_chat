@@ -13,6 +13,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -90,6 +91,11 @@ public class Controller implements Initializable{
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                    try {
+                        out.writeUTF("/close");
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
                 }finally {
                     setAuth(false);
                     try {
