@@ -1,57 +1,77 @@
 package server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Server {
-    private static final int PORT = 4421;
+    private final int PORT = 4421;
+    private Socket socket;
+    private ServerSocket serverSocket;
 
-    public static void main(String[] args) {
-        Socket clientSocket = null;
-        Scanner sc = new Scanner(System.in);
-
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+    private List<ClientHandler> clients;
+    private Authentication authentication;
+    public Server() {
+        authentication = new Auth();
+        clients = new CopyOnWriteArrayList<>();
+        //Socket socket = null;
+        try {
+            serverSocket = new ServerSocket(PORT);
             System.out.println("Server started");
-            clientSocket = serverSocket.accept();
-            System.out.println("Client connected " + clientSocket.getRemoteSocketAddress());
-            DataInputStream in = new DataInputStream(clientSocket.getInputStream());
-            DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
-
-            Thread threadRead = new Thread(() -> {
-                try {
-                    while (true){
-                        out.writeUTF(sc.nextLine());
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-            threadRead.setDaemon(true);
-            threadRead.start();
 
             while (true) {
-                String str = in.readUTF();
-                if (str.equals("/close")) {
-                    System.out.println("Client disconnected");
-                    out.writeUTF("/close");
-                    break;
-                }
-                else {
-                    System.out.println("Client " + str);
-                }
+                socket = serverSocket.accept();
+                System.out.println("Client connected " + socket.getRemoteSocketAddress());
+                new ClientHandler(this, socket);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
             try {
-                clientSocket.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                serverSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+    public void clientToEveryOne(ClientHandler sender, String msg) {
+        String message = String.format("%s: %s", sender.getNickname(), msg);
+        for (ClientHandler client : clients) {
+            client.sendMsg(message);
+        }
+        System.out.println(message);
+    }
+    public void clientToClient(ClientHandler sender, String receiver, String msg) {
+        String message = String.format("%s to %s: %s", sender.getNickname(), receiver, msg);
+        for (ClientHandler client : clients) {
+            if (client.getNickname().equals(receiver)) {
+                client.sendMsg(message);
+                sender.sendMsg(message);
+                if (client.getNickname().equals(sender)) {
+                    sender.sendMsg("You can't send a message to yourself");
+                }
+                return;
+            }
+            else {
+                sender.sendMsg("This user does not exist");
+            }
+        }
+    }
+    public void sub(ClientHandler clientHandler) {
+        clients.add(clientHandler);
+    }
+    public void unsub(ClientHandler clientHandler) {
+        clients.remove(clientHandler);
+    }
+
+    public Authentication getAuthentication() {
+        return authentication;
     }
 }
