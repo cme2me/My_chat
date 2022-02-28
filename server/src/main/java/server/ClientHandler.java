@@ -23,7 +23,7 @@ public class ClientHandler {
             out = new DataOutputStream(socket.getOutputStream());
             Thread working = new Thread(() -> {
                 try {
-                    socket.setSoTimeout(3000);
+                    socket.setSoTimeout(120000);
                     while (true) {
                         String str = in.readUTF();
                         if (str.startsWith("/")) {
@@ -70,10 +70,10 @@ public class ClientHandler {
                             server.clientToEveryOne(this, str);
                         }
                     }
+                } catch (SocketTimeoutException e) {
+                    sendMsg("/close");
                 } catch (IOException e) {
                     e.printStackTrace();
-                    sendMsg("/close");
-
                 } finally {
                     server.unsub(this);
                     try {
