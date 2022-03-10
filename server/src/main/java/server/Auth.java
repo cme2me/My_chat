@@ -33,4 +33,16 @@ public class Auth implements Authentication{
         }
         return null;
     }
+
+    @Override
+    public boolean isRegistered(String login, String password, String nickname) {
+        for (UserData users  : userData
+             ) {
+            if (users.login.equals(login) || users.nickname.equals(nickname)) {
+                return false;
+            }
+        }
+        userData.add(new UserData(login, password, nickname));
+        return true;
+    }
 }

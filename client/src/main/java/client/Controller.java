@@ -87,6 +87,9 @@ public class Controller implements Initializable{
                                 setAuth(true);
                                 break;
                             }
+                            if (str.equals("/reg_complete") || str.equals("/reg_broke")) {
+                                regController.regFinish(str);
+                            }
                         }
                         else {
                             chatField.appendText(str + "\n");
@@ -168,6 +171,13 @@ public class Controller implements Initializable{
 
     public void regProcess(String login, String password, String nickname) {
         String msg = String.format("/reg %s %s %s", login, password, nickname);
-
+        if (socket == null || socket.isClosed()) {
+            connect();
+        }
+        try {
+            out.writeUTF(msg);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

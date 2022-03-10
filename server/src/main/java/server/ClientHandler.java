@@ -47,6 +47,18 @@ public class ClientHandler {
                                     sendMsg("Login or password are incorrect");
                                 }
                             }
+                            if (str.startsWith("/reg")) {
+                                String[] token = str.split(" ");
+                                if (token.length < 4) {
+                                    continue;
+                                }
+                                if (server.getAuthentication().isRegistered(token[1], token[2], token[3])) {
+                                    sendMsg("/reg_complete");
+                                }
+                                else {
+                                    sendMsg("/reg_broke");
+                                }
+                            }
                         }
                     }
                     socket.setSoTimeout(0);

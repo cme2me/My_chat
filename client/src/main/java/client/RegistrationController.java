@@ -29,4 +29,12 @@ public class RegistrationController {
         String nickname = nicknameField.getText().trim();
         controller.regProcess(login, password, nickname);
     }
+    public void regFinish(String command) {
+        if (command.equals("/reg_complete")) {
+            chatField.appendText("Registration completed\n");
+        }
+        else {
+            chatField.appendText("Oops, maybe you did something wrong\n");
+        }
+    }
 }
