@@ -1,9 +1,18 @@
 package server;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Auth implements Authentication{
+    private static Connection connection;
+    private static Statement statement;
+
+    public static void connectSQL() throws ClassNotFoundException, SQLException {
+        Class.forName("org.sqlite.JDBC");
+        connection = DriverManager.getConnection("jdbc:sqlite:users.db");
+        statement = connection.createStatement();
+    }
     private class UserData {
         private String login;
         private String password;
