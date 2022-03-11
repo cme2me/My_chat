@@ -5,14 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Auth implements Authentication{
-    private static Connection connection;
-    private static Statement statement;
 
-    public static void connectSQL() throws ClassNotFoundException, SQLException {
-        Class.forName("org.sqlite.JDBC");
-        connection = DriverManager.getConnection("jdbc:sqlite:users.db");
-        statement = connection.createStatement();
-    }
     private class UserData {
         private String login;
         private String password;
@@ -31,6 +24,7 @@ public class Auth implements Authentication{
         userData.add(new UserData("nick1", "pass1", "nick1"));
         userData.add(new UserData("nick2", "pass2", "nick2"));
         userData.add(new UserData("nick3", "pass3", "nick3"));
+
     }
 
     @Override
@@ -53,5 +47,6 @@ public class Auth implements Authentication{
         }
         userData.add(new UserData(login, password, nickname));
         return true;
+
     }
 }
