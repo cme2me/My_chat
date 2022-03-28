@@ -1,9 +1,11 @@
 package server;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Auth implements Authentication{
+
     private class UserData {
         private String login;
         private String password;
@@ -22,6 +24,7 @@ public class Auth implements Authentication{
         userData.add(new UserData("nick1", "pass1", "nick1"));
         userData.add(new UserData("nick2", "pass2", "nick2"));
         userData.add(new UserData("nick3", "pass3", "nick3"));
+
     }
 
     @Override
@@ -32,5 +35,18 @@ public class Auth implements Authentication{
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean isRegistered(String login, String password, String nickname) {
+        for (UserData users  : userData
+             ) {
+            if (users.login.equals(login) || users.nickname.equals(nickname)) {
+                return false;
+            }
+        }
+        userData.add(new UserData(login, password, nickname));
+        return true;
+
     }
 }

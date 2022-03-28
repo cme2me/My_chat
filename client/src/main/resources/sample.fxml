@@ -13,6 +13,7 @@
       <TextField fx:id="loginField" HBox.hgrow="ALWAYS" promptText="Login"/>
       <PasswordField fx:id="passField" HBox.hgrow="ALWAYS" promptText="Password"/>
       <Button text="Authenticate" onAction="#Auth"/>
+      <Button text="Registration" onAction="#tryToReg"/>
    </HBox>
    <stylesheets>
       <URL value="@css/style.css"/>

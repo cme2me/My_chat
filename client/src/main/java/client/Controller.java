@@ -1,13 +1,20 @@
 package client;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -37,6 +44,9 @@ public class Controller implements Initializable{
     public Button sendBtn;
     private boolean isAuth;
     private String nickname;
+    private Stage regStage;
+    private Stage stage;
+    private RegistrationController regController;
 
     private DataInputStream in;
     private DataOutputStream out;
@@ -76,6 +86,9 @@ public class Controller implements Initializable{
                                 nickname = str.split(" ")[1];
                                 setAuth(true);
                                 break;
+                            }
+                            if (str.equals("/reg_complete") || str.equals("/reg_broke")) {
+                                regController.regFinish(str);
                             }
                         }
                         else {
@@ -128,6 +141,42 @@ public class Controller implements Initializable{
         passField.clear();
         try {
             out.writeUTF(doMsg);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void showRegStage() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/registation.fxml"));
+            Parent root = fxmlLoader.load();
+            regStage = new Stage();
+
+            regStage.setTitle("Kraber registration");
+            regStage.setScene(new Scene(root, 600, 600));
+            regController = fxmlLoader.getController();
+            regController.setController(this);
+            regStage.initStyle(StageStyle.UTILITY);
+            regStage.initModality(Modality.APPLICATION_MODAL);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void tryToReg(ActionEvent actionEvent) {
+        if (regStage == null) {
+            showRegStage();
+        }
+        regStage.show();
+    }
+
+    public void regProcess(String login, String password, String nickname) {
+        String msg = String.format("/reg %s %s %s", login, password, nickname);
+        if (socket == null || socket.isClosed()) {
+            connect();
+        }
+
+        try {
+            out.writeUTF(msg);
         } catch (IOException e) {
             e.printStackTrace();
         }
