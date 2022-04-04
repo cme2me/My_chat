@@ -21,7 +21,7 @@ public class ClientHandler {
             this.socket = socket;
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-            Thread working = new Thread(() -> {
+            server.getService().execute(() -> {
                 try {
                     socket.setSoTimeout(120000);
                     while (true) {
@@ -100,7 +100,6 @@ public class ClientHandler {
                     }
                 }
             });
-            working.start();
 
         } catch (IOException e) {
             e.printStackTrace();

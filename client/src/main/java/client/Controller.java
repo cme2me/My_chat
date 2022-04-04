@@ -47,6 +47,7 @@ public class Controller implements Initializable{
     private Stage regStage;
     private Stage stage;
     private RegistrationController regController;
+    private String login;
 
     private DataInputStream in;
     private DataOutputStream out;
@@ -60,6 +61,7 @@ public class Controller implements Initializable{
         workPanel.setManaged(isAuth);
         if (!isAuth) {
             nickname = "";
+            History.tearsDown();
         }
         chatField.clear();
     }
@@ -85,6 +87,8 @@ public class Controller implements Initializable{
                             if (str.startsWith("/auth_complete")) {
                                 nickname = str.split(" ")[1];
                                 setAuth(true);
+                                chatField.appendText(History.get100Messages(login));
+                                History.start(login);
                                 break;
                             }
                             if (str.equals("/reg_complete") || str.equals("/reg_broke")) {
@@ -93,6 +97,7 @@ public class Controller implements Initializable{
                         }
                         else {
                             chatField.appendText(str + "\n");
+                            History.writeLine(str);
                         }
                     }
                     while (isAuth) {
@@ -137,6 +142,7 @@ public class Controller implements Initializable{
         if (socket == null || socket.isClosed()) {
             connect();
         }
+        login = loginField.getText().trim();
         String doMsg = String.format("/auth %s %s", loginField.getText().trim(), passField.getText().trim());
         passField.clear();
         try {

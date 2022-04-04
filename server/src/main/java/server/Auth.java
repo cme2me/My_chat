@@ -21,10 +21,6 @@ public class Auth implements Authentication{
 
     public Auth() {
         userData = new ArrayList<>();
-        userData.add(new UserData("nick1", "pass1", "nick1"));
-        userData.add(new UserData("nick2", "pass2", "nick2"));
-        userData.add(new UserData("nick3", "pass3", "nick3"));
-
     }
 
     @Override
